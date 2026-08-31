@@ -71,10 +71,10 @@ The STF/TFB windows remain open after their device exits so that the final log a
 
 ### Docker
 
-For normal use, pull the prebuilt image from GHCR:
+For normal use, pull the prebuilt x86-64-v2 image from GHCR:
 
 ```bash
-docker pull --platform linux/amd64 \
+docker pull --platform linux/amd64/v2 \
   ghcr.io/nobukoba/container-interfacing-nestdaq-eicrecon:latest
 ```
 
@@ -83,7 +83,7 @@ Run it with host networking:
 ```bash
 docker run --rm -it \
   --name container-interfacing-nestdaq-eicrecon \
-  --platform linux/amd64 \
+  --platform linux/amd64/v2 \
   --network host \
   ghcr.io/nobukoba/container-interfacing-nestdaq-eicrecon:latest
 ```
@@ -94,7 +94,7 @@ Open another shell in the running container with:
 docker exec -it container-interfacing-nestdaq-eicrecon bash
 ```
 
-For development, clone the repository and build the Docker image locally:
+For development, clone the repository and build the Docker image locally. The build script also targets `linux/amd64/v2`:
 
 ```bash
 git clone https://github.com/nobukoba/container-interfacing-nestdaq-eicrecon.git
@@ -244,7 +244,7 @@ It is also triggered by changes to build-related files on `main`.
 GitHub repository
        |
        v
-Docker build (linux/amd64)
+Docker build (linux/amd64/v2)
        |
        v
 GHCR
