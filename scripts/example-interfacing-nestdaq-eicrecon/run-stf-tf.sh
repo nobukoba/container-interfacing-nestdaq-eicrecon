@@ -20,15 +20,16 @@ if tmux has-session -t "${SESSION}" 2>/dev/null; then
   tmux kill-session -t "${SESSION}"
 fi
 
-# Create a temporary bootstrap window first.  This lets us set
-# remain-on-exit before any NestDAQ process is launched, so a failed
-# device window remains visible instead of disappearing immediately.
+# Keep one permanent control shell alive. This guarantees that the tmux
+# session remains available even if all NestDAQ processes terminate.
 tmux new-session -d \
   -s "${SESSION}" \
-  -n bootstrap \
-  -c "${SCRIPT_DIR}"
+  -n control \
+  -c "${SCRIPT_DIR}" \
+  "exec bash"
 
-tmux set-option -t "${SESSION}" remain-on-exit on
+# Keep finished device panes visible for debugging.
+tmux set-window-option -g -t "${SESSION}" remain-on-exit on
 tmux set-option -t "${SESSION}" allow-rename off
 
 echo "Starting daq-webctl..."
@@ -55,16 +56,17 @@ tmux new-window \
   -c "${SCRIPT_DIR}" \
   "./keep-device-window.sh TimeFrameBuilder ./start_device.sh TimeFrameBuilder"
 
-# The bootstrap window is no longer needed.
-tmux kill-window -t "${SESSION}:bootstrap"
-
 echo
 echo "NestDAQ tmux windows:"
 tmux list-windows -t "${SESSION}"
 echo
-echo "STF/TFB windows stay open after their device process exits."
-echo "Select the window to inspect the final log and exit status."
+echo "The control window is kept alive permanently."
+echo "STF/TFB windows also remain visible after their device process exits."
 echo
 echo "Attaching to tmux session: ${SESSION}"
-tmux select-window -t "${SESSION}:webctl"
+if tmux list-windows -t "${SESSION}" -F '#W' | grep -qx webctl; then
+  tmux select-window -t "${SESSION}:webctl"
+else
+  tmux select-window -t "${SESSION}:control"
+fi
 exec tmux attach-session -t "${SESSION}"
