@@ -16,8 +16,8 @@ ENV PATH=/opt/spadi/bin:${PATH}
 ENV LD_LIBRARY_PATH=/opt/spadi/lib:/opt/spadi/lib64
 ENV CMAKE_PREFIX_PATH=/opt/spadi
 ENV PKG_CONFIG_PATH=/opt/spadi/lib/pkgconfig:/opt/spadi/lib64/pkgconfig
-ENV CFLAGS="-O2 -march=x86-64-v2 -mtune=generic -mno-avx -mno-avx2"
-ENV CXXFLAGS="-O2 -march=x86-64-v2 -mtune=generic -mno-avx -mno-avx2"
+ENV CFLAGS="-O2 -march=x86-64-v2 -mtune=generic"
+ENV CXXFLAGS="-O2 -march=x86-64-v2 -mtune=generic"
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
@@ -50,7 +50,6 @@ RUN cd ${SPADI_ROOT}/src && \
     git clone --depth 1 --branch ${LIBZMQ_VERSION} https://github.com/zeromq/libzmq.git && \
     cmake -S libzmq -B libzmq/build -DCMAKE_BUILD_TYPE=Release \
       -DCMAKE_INSTALL_PREFIX=${SPADI_ROOT} -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
-      -DCMAKE_C_FLAGS="${CFLAGS}" -DCMAKE_CXX_FLAGS="${CXXFLAGS}" \
       -DBUILD_TESTS=OFF -DENABLE_DRAFTS=OFF && \
     cmake --build libzmq/build -j${NPROC} && cmake --install libzmq/build
 
@@ -58,7 +57,6 @@ RUN cd ${SPADI_ROOT}/src && \
     git clone --depth 1 --branch ${FMT_VERSION} https://github.com/fmtlib/fmt.git && \
     cmake -S fmt -B fmt/build -DCMAKE_BUILD_TYPE=Release \
       -DCMAKE_INSTALL_PREFIX=${SPADI_ROOT} -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
-      -DCMAKE_C_FLAGS="${CFLAGS}" -DCMAKE_CXX_FLAGS="${CXXFLAGS}" \
       -DBUILD_SHARED_LIBS=ON -DFMT_TEST=OFF -DFMT_DOC=OFF && \
     cmake --build fmt/build -j${NPROC} && cmake --install fmt/build
 
@@ -66,23 +64,19 @@ RUN cd ${SPADI_ROOT}/src && \
     git clone --depth 1 https://github.com/FairRootGroup/FairLogger.git && \
     cmake -S FairLogger -B FairLogger/build -DCMAKE_BUILD_TYPE=Release \
       -DCMAKE_INSTALL_PREFIX=${SPADI_ROOT} -DCMAKE_PREFIX_PATH=${SPADI_ROOT} \
-      -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_CXX_STANDARD=17 \
-      -DCMAKE_C_FLAGS="${CFLAGS}" -DCMAKE_CXX_FLAGS="${CXXFLAGS}" \
-      -DUSE_EXTERNAL_FMT=ON && \
+      -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_CXX_STANDARD=17 -DUSE_EXTERNAL_FMT=ON && \
     cmake --build FairLogger/build -j${NPROC} && cmake --install FairLogger/build
 
 RUN cd ${SPADI_ROOT}/src && \
     git clone --depth 1 --branch ${FAIRMQ_VERSION} https://github.com/FairRootGroup/FairMQ.git && \
     cmake -S FairMQ -B FairMQ/build -DCMAKE_BUILD_TYPE=Release \
       -DCMAKE_INSTALL_PREFIX=${SPADI_ROOT} -DCMAKE_PREFIX_PATH=${SPADI_ROOT} \
-      -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_CXX_STANDARD=17 \
-      -DCMAKE_C_FLAGS="${CFLAGS}" -DCMAKE_CXX_FLAGS="${CXXFLAGS}" \
-      -DBUILD_TESTING=OFF && \
+      -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_CXX_STANDARD=17 -DBUILD_TESTING=OFF && \
     cmake --build FairMQ/build -j${NPROC} && cmake --install FairMQ/build
 
 RUN cd ${SPADI_ROOT}/src && \
     git clone --depth 1 --branch ${HIREDIS_VERSION} https://github.com/redis/hiredis.git && \
-    make -C hiredis -j${NPROC} PREFIX=${SPADI_ROOT} CFLAGS="${CFLAGS}" && \
+    make -C hiredis -j${NPROC} PREFIX=${SPADI_ROOT} && \
     make -C hiredis PREFIX=${SPADI_ROOT} install
 
 RUN cd ${SPADI_ROOT}/src && \
@@ -91,7 +85,6 @@ RUN cd ${SPADI_ROOT}/src && \
     cmake -S redis-plus-plus -B redis-plus-plus/build -DCMAKE_BUILD_TYPE=Release \
       -DCMAKE_INSTALL_PREFIX=${SPADI_ROOT} -DCMAKE_PREFIX_PATH=${SPADI_ROOT} \
       -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DREDIS_PLUS_PLUS_CXX_STANDARD=17 \
-      -DCMAKE_C_FLAGS="${CFLAGS}" -DCMAKE_CXX_FLAGS="${CXXFLAGS}" \
       -DREDIS_PLUS_PLUS_BUILD_TEST=OFF -DREDIS_PLUS_PLUS_BUILD_STATIC=OFF && \
     cmake --build redis-plus-plus/build -j${NPROC} && cmake --install redis-plus-plus/build
 
@@ -105,7 +98,7 @@ RUN cd ${SPADI_ROOT}/src && \
     git clone --recursive --depth 1 --branch ${REDISTIMESERIES_VERSION} \
       https://github.com/RedisTimeSeries/RedisTimeSeries.git && \
     cd RedisTimeSeries && \
-    make -j${NPROC} build DEPS=1 CFLAGS="${CFLAGS}" CXXFLAGS="${CXXFLAGS}" && \
+    make -j${NPROC} build DEPS=1 && \
     RTS_SO="$(find bin -type f -name redistimeseries.so -print -quit)" && \
     test -n "${RTS_SO}" && \
     install -m 0755 "${RTS_SO}" ${SPADI_ROOT}/lib/redistimeseries.so
@@ -114,14 +107,8 @@ RUN cd ${SPADI_ROOT}/src && \
     git clone --depth 1 https://github.com/spadi-alliance/nestdaq.git && \
     cmake -S nestdaq -B nestdaq/build -DCMAKE_BUILD_TYPE=Release \
       -DCMAKE_INSTALL_PREFIX=${SPADI_ROOT} -DCMAKE_PREFIX_PATH=${SPADI_ROOT} \
-      -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_CXX_STANDARD=17 \
-      -DCMAKE_C_FLAGS="${CFLAGS}" -DCMAKE_CXX_FLAGS="${CXXFLAGS}" && \
-    cmake --build nestdaq/build -j${NPROC} && cmake --install nestdaq/build && \
-    if objdump -d ${SPADI_ROOT}/bin/daq-webctl | grep -Eq '\bvzeroupper\b|\bymm[0-9]+\b|\bzmm[0-9]+\b'; then \
-      echo "ERROR: daq-webctl contains AVX/AVX-512 instructions" >&2; \
-      objdump -d ${SPADI_ROOT}/bin/daq-webctl | grep -E '\bvzeroupper\b|\bymm[0-9]+\b|\bzmm[0-9]+\b' | sed -n '1,20p' >&2; \
-      exit 1; \
-    fi
+      -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_CXX_STANDARD=17 && \
+    cmake --build nestdaq/build -j${NPROC} && cmake --install nestdaq/build
 
 RUN cd ${SPADI_ROOT}/src && \
     git clone --depth 1 https://github.com/spadi-alliance/uhbook.git && \
@@ -145,8 +132,7 @@ RUN cmake -S ${SPADI_ROOT}/src/nestdaq-user-impl \
       -DCMAKE_INSTALL_PREFIX=${SPADI_ROOT} \
       -DCMAKE_PREFIX_PATH="${SPADI_ROOT};${SPADI_ROOT}/src/uhbook" \
       -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
-      -DCMAKE_CXX_STANDARD=17 \
-      -DCMAKE_C_FLAGS="${CFLAGS}" -DCMAKE_CXX_FLAGS="${CXXFLAGS}" && \
+      -DCMAKE_CXX_STANDARD=17 && \
     cmake --build ${SPADI_ROOT}/src/nestdaq-user-impl/build -j${NPROC} && \
     cmake --install ${SPADI_ROOT}/src/nestdaq-user-impl/build
 
