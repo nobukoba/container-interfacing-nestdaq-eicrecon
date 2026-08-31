@@ -142,9 +142,13 @@ RUN cmake -S ${SPADI_ROOT}/src/nestdaq-user-impl \
       -DCMAKE_INSTALL_PREFIX=${SPADI_ROOT} \
       -DCMAKE_PREFIX_PATH="${SPADI_ROOT};${SPADI_ROOT}/src/uhbook" \
       -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
-      -DCMAKE_CXX_STANDARD=17 && \
-    cmake --build ${SPADI_ROOT}/src/nestdaq-user-impl/build -j${NPROC} && \
-    cmake --install ${SPADI_ROOT}/src/nestdaq-user-impl/build
+      -DCMAKE_CXX_STANDARD=17 \
+      -DCMAKE_C_FLAGS_RELEASE="-O3 -DNDEBUG -march=x86-64-v2 -mtune=generic -mno-avx -mno-avx2" \
+      -DCMAKE_CXX_FLAGS_RELEASE="-O3 -DNDEBUG -march=x86-64-v2 -mtune=generic -mno-avx -mno-avx2" && \
+    cmake --build ${SPADI_ROOT}/src/nestdaq-user-impl/build -j${NPROC} --verbose && \
+    cmake --install ${SPADI_ROOT}/src/nestdaq-user-impl/build && \
+    echo '=== Checking nestdaq-user-impl executables for AVX instructions ===' && \
+    ! objdump -d ${SPADI_ROOT}/bin/STFBFilePlayer | grep -Eq 'vzeroupper|ymm[0-9]+|zmm[0-9]+|vmovdqu'
 
 RUN git clone --depth 1 https://github.com/spadi-alliance/exp-config.git ${EXP_CONFIG_ROOT}
 
