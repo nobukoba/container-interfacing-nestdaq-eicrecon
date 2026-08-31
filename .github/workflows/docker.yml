@@ -17,8 +17,8 @@ permissions:
   packages: write
 
 env:
-  IMAGE_NAME: spadi-interfacing-nestdaq-eicrecon
-  SIF_NAME: spadi-interfacing-nestdaq-eicrecon.sif
+  IMAGE_NAME: container-interfacing-nestdaq-eicrecon
+  SIF_NAME: container-interfacing-nestdaq-eicrecon.sif
 
 jobs:
   build:
@@ -98,7 +98,7 @@ jobs:
             "${SIF_NAME}" \
             "docker://${{ steps.image.outputs.ref }}:${{ steps.tag.outputs.tag }}"
           cp "${SIF_NAME}" \
-            "spadi-interfacing-nestdaq-eicrecon-${{ steps.tag.outputs.tag }}.sif"
+            "container-interfacing-nestdaq-eicrecon-${{ steps.tag.outputs.tag }}.sif"
 
       - name: Show SIF image size
         shell: bash
@@ -107,7 +107,7 @@ jobs:
           echo "=== SIF image size ==="
           ls -lh \
             "${SIF_NAME}" \
-            "spadi-interfacing-nestdaq-eicrecon-${{ steps.tag.outputs.tag }}.sif"
+            "container-interfacing-nestdaq-eicrecon-${{ steps.tag.outputs.tag }}.sif"
 
       - name: Smoke test SIF
         shell: bash
@@ -129,10 +129,10 @@ jobs:
       - name: Upload SIF artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: spadi-interfacing-nestdaq-eicrecon-${{ steps.tag.outputs.tag }}-sif
+          name: container-interfacing-nestdaq-eicrecon-${{ steps.tag.outputs.tag }}-sif
           path: |
-            spadi-interfacing-nestdaq-eicrecon.sif
-            spadi-interfacing-nestdaq-eicrecon-${{ steps.tag.outputs.tag }}.sif
+            container-interfacing-nestdaq-eicrecon.sif
+            container-interfacing-nestdaq-eicrecon-${{ steps.tag.outputs.tag }}.sif
           if-no-files-found: error
           compression-level: 0
           retention-days: 30
@@ -145,8 +145,8 @@ jobs:
           prerelease: false
           make_latest: true
           files: |
-            spadi-interfacing-nestdaq-eicrecon.sif
-            spadi-interfacing-nestdaq-eicrecon-${{ steps.tag.outputs.tag }}.sif
+            container-interfacing-nestdaq-eicrecon.sif
+            container-interfacing-nestdaq-eicrecon-${{ steps.tag.outputs.tag }}.sif
           body: |
             Automatically built from the latest successful main-branch container build.
             Build: ${{ steps.tag.outputs.tag }}
