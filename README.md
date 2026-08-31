@@ -71,30 +71,42 @@ The STF/TFB windows remain open after their device exits so that the final log a
 
 ### Docker
 
-Clone and build:
+For normal use, pull the prebuilt image from GHCR:
+
+```bash
+docker pull --platform linux/amd64 \
+  ghcr.io/nobukoba/container-interfacing-nestdaq-eicrecon:latest
+```
+
+Run it with host networking:
+
+```bash
+docker run --rm -it \
+  --name container-interfacing-nestdaq-eicrecon \
+  --platform linux/amd64 \
+  --network host \
+  ghcr.io/nobukoba/container-interfacing-nestdaq-eicrecon:latest
+```
+
+Open another shell in the running container with:
+
+```bash
+docker exec -it container-interfacing-nestdaq-eicrecon bash
+```
+
+For development, clone the repository and build the Docker image locally:
 
 ```bash
 git clone https://github.com/nobukoba/container-interfacing-nestdaq-eicrecon.git
 cd container-interfacing-nestdaq-eicrecon
 ./build-docker-image.sh
-```
-
-Run:
-
-```bash
 ./run-docker-container.sh
 ```
 
-Open another shell in the same container:
+A second shell can then be opened with:
 
 ```bash
 ./login-docker-container.sh
-```
-
-Equivalent command:
-
-```bash
-docker exec -it container-interfacing-nestdaq-eicrecon bash
 ```
 
 ## Images
