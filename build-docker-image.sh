@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
-IMAGE_NAME="${IMAGE_NAME:-spadi-interfacing-nestdaq-eicrecon}"
+IMAGE_NAME="${IMAGE_NAME:-container-interfacing-nestdaq-eicrecon}"
 NPROC="${NPROC:-4}"
 STAMP="${STAMP:-$(date -u +%Y%m%d-%H%Mutc)}"
 
