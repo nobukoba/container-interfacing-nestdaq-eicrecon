@@ -1,4 +1,4 @@
-# spadi-interfacing-nestdaq-eicrecon
+# container-interfacing-nestdaq-eicrecon
 
 NestDAQ-side Docker / Apptainer environment for the NestDAQ–EICrecon interface.
 
@@ -9,9 +9,9 @@ NestDAQ-side Docker / Apptainer environment for the NestDAQ–EICrecon interface
 Download the latest SIF image:
 
 ```bash
-curl -L \
-  -o spadi-interfacing-nestdaq-eicrecon.sif \
-  https://github.com/nobukoba/spadi-interfacing-nestdaq-eicrecon/releases/latest/download/spadi-interfacing-nestdaq-eicrecon.sif
+curl -fL \
+  -o container-interfacing-nestdaq-eicrecon.sif \
+  https://github.com/nobukoba/container-interfacing-nestdaq-eicrecon/releases/latest/download/container-interfacing-nestdaq-eicrecon.sif
 ```
 
 Create a persistent writable work directory:
@@ -25,7 +25,7 @@ Start with Apptainer:
 ```bash
 apptainer shell \
   --bind "$PWD/work:/work" \
-  spadi-interfacing-nestdaq-eicrecon.sif
+  container-interfacing-nestdaq-eicrecon.sif
 ```
 
 For SingularityCE:
@@ -33,7 +33,7 @@ For SingularityCE:
 ```bash
 singularity shell \
   --bind "$PWD/work:/work" \
-  spadi-interfacing-nestdaq-eicrecon.sif
+  container-interfacing-nestdaq-eicrecon.sif
 ```
 
 Inside the container, start the NestDAQ example:
@@ -64,7 +64,7 @@ Ctrl-b d      detach
 Reattach with:
 
 ```bash
-tmux attach -t nestdaq
+tmux -L spadi-sif attach -t nestdaq
 ```
 
 The STF/TFB windows remain open after their device exits so that the final log and exit status can be inspected.
@@ -74,8 +74,8 @@ The STF/TFB windows remain open after their device exits so that the final log a
 Clone and build:
 
 ```bash
-git clone https://github.com/nobukoba/spadi-interfacing-nestdaq-eicrecon.git
-cd spadi-interfacing-nestdaq-eicrecon
+git clone https://github.com/nobukoba/container-interfacing-nestdaq-eicrecon.git
+cd container-interfacing-nestdaq-eicrecon
 ./build-docker-image.sh
 ```
 
@@ -94,7 +94,7 @@ Open another shell in the same container:
 Equivalent command:
 
 ```bash
-docker exec -it spadi-interfacing-nestdaq-eicrecon bash
+docker exec -it container-interfacing-nestdaq-eicrecon bash
 ```
 
 ## Images
@@ -103,12 +103,12 @@ GitHub Actions builds both Docker and Apptainer/Singularity images.
 
 ```text
 Docker:
-  ghcr.io/nobukoba/spadi-interfacing-nestdaq-eicrecon:latest
-  ghcr.io/nobukoba/spadi-interfacing-nestdaq-eicrecon:YYYYMMDD-HHMMutc
+  ghcr.io/nobukoba/container-interfacing-nestdaq-eicrecon:latest
+  ghcr.io/nobukoba/container-interfacing-nestdaq-eicrecon:YYYYMMDD-HHMMutc
 
 SIF:
-  spadi-interfacing-nestdaq-eicrecon.sif
-  spadi-interfacing-nestdaq-eicrecon-YYYYMMDD-HHMMutc.sif
+  container-interfacing-nestdaq-eicrecon.sif
+  container-interfacing-nestdaq-eicrecon-YYYYMMDD-HHMMutc.sif
 ```
 
 The non-timestamped SIF is published in the `latest` GitHub Release and is intended for normal use. The timestamped SIF identifies the exact build.
@@ -130,7 +130,7 @@ Inside Docker/SIF:
 /opt/spadi/example_rawdata/raris_ac_lgad_202603/
 ```
 
-The example configuration uses `partial_run000021.dat` from each of the three directories.
+The example configuration uses `run000020.dat` from each of the three directories.
 
 ## Container layout
 
@@ -214,8 +214,8 @@ tcp://127.0.0.1:5501
 
 ```bash
 apptainer build \
-  spadi-interfacing-nestdaq-eicrecon.sif \
-  docker://ghcr.io/nobukoba/spadi-interfacing-nestdaq-eicrecon:latest
+  container-interfacing-nestdaq-eicrecon.sif \
+  docker://ghcr.io/nobukoba/container-interfacing-nestdaq-eicrecon:latest
 ```
 
 ## GitHub Actions
