@@ -124,6 +124,9 @@ RUN cd ${SPADI_ROOT}/src && \
     git clone --depth 1 https://github.com/spadi-alliance/uhbook.git && \
     ln -sf ${SPADI_ROOT}/src/uhbook/uhbook.cxx ${SPADI_ROOT}/include/uhbook.cxx
 
+# nestdaq-user-impl also sets -march=native unconditionally for Release builds.
+# Patch that project setting itself so GitHub-hosted native x86 builders cannot
+# re-enable AVX after command-line/environment flags have been supplied.
 RUN cd ${SPADI_ROOT}/src && \
     git clone --depth 1 https://github.com/spadi-alliance/nestdaq-user-impl.git && \
     python3 - <<'PY'
@@ -133,6 +136,8 @@ s = p.read_text()
 s = s.replace("find_package(ROOT REQUIRED COMPONENTS RIO RHTTP Hist)",
               'message(STATUS "ROOT support disabled")')
 s = s.replace("    TriggerView;\n", "")
+s = s.replace('set(CMAKE_CXX_FLAGS_RELEASE "-Ofast -DNDEBUG -march=native")',
+              'set(CMAKE_CXX_FLAGS_RELEASE "-Ofast -DNDEBUG -march=x86-64-v2 -mtune=generic -mno-avx -mno-avx2")')
 p.write_text(s)
 PY
 
@@ -142,9 +147,7 @@ RUN cmake -S ${SPADI_ROOT}/src/nestdaq-user-impl \
       -DCMAKE_INSTALL_PREFIX=${SPADI_ROOT} \
       -DCMAKE_PREFIX_PATH="${SPADI_ROOT};${SPADI_ROOT}/src/uhbook" \
       -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
-      -DCMAKE_CXX_STANDARD=17 \
-      -DCMAKE_C_FLAGS_RELEASE="-O3 -DNDEBUG -march=x86-64-v2 -mtune=generic -mno-avx -mno-avx2" \
-      -DCMAKE_CXX_FLAGS_RELEASE="-O3 -DNDEBUG -march=x86-64-v2 -mtune=generic -mno-avx -mno-avx2" && \
+      -DCMAKE_CXX_STANDARD=17 && \
     cmake --build ${SPADI_ROOT}/src/nestdaq-user-impl/build -j${NPROC} --verbose && \
     cmake --install ${SPADI_ROOT}/src/nestdaq-user-impl/build && \
     echo '=== Checking nestdaq-user-impl executables for AVX instructions ===' && \
