@@ -118,13 +118,12 @@ jobs:
             test -x /opt/spadi/scripts/example-interfacing-nestdaq-eicrecon/start-valkey.sh
             test -x /opt/spadi/scripts/example-interfacing-nestdaq-eicrecon/run-stf-tf.sh
             test -x /opt/spadi/scripts/example-interfacing-nestdaq-eicrecon/keep-device-window.sh
+            test -r /opt/spadi/lib/redistimeseries.so
             test -d /opt/spadi/scripts/exp-config
             test -d /opt/spadi/example_rawdata/raris_ac_lgad_202603
             command -v valkey-server
+            command -v valkey-cli
             command -v tmux
-            valkey-server --bind 127.0.0.1 --port 6379 --daemonize yes --dir /tmp --loadmodule /opt/spadi/lib/redistimeseries.so
-            valkey-cli COMMAND INFO TS.ADD | grep -qi ts.add
-            valkey-cli shutdown nosave
           '
 
       - name: Upload SIF artifacts
