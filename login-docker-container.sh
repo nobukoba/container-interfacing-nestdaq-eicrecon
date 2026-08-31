@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-CONTAINER_NAME="spadi-interfacing-nestdaq-eicrecon"
+CONTAINER_NAME="container-interfacing-nestdaq-eicrecon"
 
 if ! docker ps --format '{{.Names}}' | grep -Fxq "${CONTAINER_NAME}"; then
   echo "Container is not running: ${CONTAINER_NAME}" >&2
