@@ -5,6 +5,10 @@ SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 cd "${SCRIPT_DIR}"
 
 SESSION="nestdaq"
+TMUX_SOCKET="spadi-sif"
+CONTAINER_PATH="/opt/spadi/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+CONTAINER_LD_LIBRARY_PATH="/opt/spadi/lib:/opt/spadi/lib64"
+TMUX=(tmux -L "${TMUX_SOCKET}")
 
 echo "Starting Valkey..."
 ./start-valkey.sh
@@ -15,58 +19,61 @@ echo "Setting NestDAQ parameters..."
 echo "Setting NestDAQ topology..."
 ./topology-stf-tf.sh
 
-if tmux has-session -t "${SESSION}" 2>/dev/null; then
+if "${TMUX[@]}" has-session -t "${SESSION}" 2>/dev/null; then
   echo "Removing existing tmux session: ${SESSION}"
-  tmux kill-session -t "${SESSION}"
+  "${TMUX[@]}" kill-session -t "${SESSION}"
 fi
 
-# Keep one permanent control shell alive. This guarantees that the tmux
-# session remains available even if all NestDAQ processes terminate.
-tmux new-session -d \
+# Use a dedicated tmux server for the container. This prevents an existing
+# host-side tmux server from launching panes with the host environment.
+# Keep one permanent control shell alive so the session remains available
+# even if all NestDAQ processes terminate.
+"${TMUX[@]}" new-session -d \
   -s "${SESSION}" \
   -n control \
   -c "${SCRIPT_DIR}" \
-  "exec bash"
+  "exec env PATH=${CONTAINER_PATH} LD_LIBRARY_PATH=${CONTAINER_LD_LIBRARY_PATH} bash"
 
 # Keep finished device panes visible for debugging.
-tmux set-window-option -g -t "${SESSION}" remain-on-exit on
-tmux set-option -t "${SESSION}" allow-rename off
+"${TMUX[@]}" set-window-option -g -t "${SESSION}" remain-on-exit on
+"${TMUX[@]}" set-option -t "${SESSION}" allow-rename off
 
 echo "Starting daq-webctl..."
-tmux new-window \
+"${TMUX[@]}" new-window \
   -t "${SESSION}" \
   -n webctl \
   -c "${SCRIPT_DIR}" \
-  "exec daq-webctl --http-uri http://0.0.0.0:8080"
+  "exec env PATH=${CONTAINER_PATH} LD_LIBRARY_PATH=${CONTAINER_LD_LIBRARY_PATH} /opt/spadi/bin/daq-webctl --http-uri http://0.0.0.0:8080"
 
 for runID in 0 1 2; do
   echo "Starting STFBFilePlayer ${runID}"
-  tmux new-window \
+  "${TMUX[@]}" new-window \
     -t "${SESSION}" \
     -n "STF${runID}" \
     -c "${SCRIPT_DIR}" \
-    "./keep-device-window.sh STFBFilePlayer ./start_device.sh STFBFilePlayer"
+    "env PATH=${CONTAINER_PATH} LD_LIBRARY_PATH=${CONTAINER_LD_LIBRARY_PATH} ./keep-device-window.sh STFBFilePlayer ./start_device.sh STFBFilePlayer"
   sleep 0.2
 done
 
 echo "Starting TimeFrameBuilder"
-tmux new-window \
+"${TMUX[@]}" new-window \
   -t "${SESSION}" \
   -n TFB \
   -c "${SCRIPT_DIR}" \
-  "./keep-device-window.sh TimeFrameBuilder ./start_device.sh TimeFrameBuilder"
+  "env PATH=${CONTAINER_PATH} LD_LIBRARY_PATH=${CONTAINER_LD_LIBRARY_PATH} ./keep-device-window.sh TimeFrameBuilder ./start_device.sh TimeFrameBuilder"
 
 echo
 echo "NestDAQ tmux windows:"
-tmux list-windows -t "${SESSION}"
+"${TMUX[@]}" list-windows -t "${SESSION}"
 echo
 echo "The control window is kept alive permanently."
 echo "STF/TFB windows also remain visible after their device process exits."
+echo "Dedicated tmux socket: ${TMUX_SOCKET}"
 echo
 echo "Attaching to tmux session: ${SESSION}"
-if tmux list-windows -t "${SESSION}" -F '#W' | grep -qx webctl; then
-  tmux select-window -t "${SESSION}:webctl"
+if "${TMUX[@]}" list-windows -t "${SESSION}" -F '#W' | grep -qx webctl; then
+  "${TMUX[@]}" select-window -t "${SESSION}:webctl"
 else
-  tmux select-window -t "${SESSION}:control"
+  "${TMUX[@]}" select-window -t "${SESSION}:control"
 fi
-exec tmux attach-session -t "${SESSION}"
+exec tmux -L "${TMUX_SOCKET}" attach-session -t "${SESSION}"
