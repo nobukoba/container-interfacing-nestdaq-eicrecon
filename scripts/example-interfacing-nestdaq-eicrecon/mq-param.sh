@@ -21,9 +21,9 @@ param() {
 "${CLI}" -u "${SERVER}" flushdb
 
 # Example RAW-data inputs.
-param STFBFilePlayer-0 in-file "/opt/spadi/example_rawdata/raris_ac_lgad_202603/00/partial_run000021.dat"
-param STFBFilePlayer-1 in-file "/opt/spadi/example_rawdata/raris_ac_lgad_202603/01/partial_run000021.dat"
-param STFBFilePlayer-2 in-file "/opt/spadi/example_rawdata/raris_ac_lgad_202603/02/partial_run000021.dat"
+param STFBFilePlayer-0 in-file "/opt/spadi/example_rawdata/raris_ac_lgad_202603/00/run000020.dat"
+param STFBFilePlayer-1 in-file "/opt/spadi/example_rawdata/raris_ac_lgad_202603/01/run000020.dat"
+param STFBFilePlayer-2 in-file "/opt/spadi/example_rawdata/raris_ac_lgad_202603/02/run000020.dat"
 
 param STFBuilder-0 max-hbf 4
 param STFBuilder-1 max-hbf 4
