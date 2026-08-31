@@ -22,8 +22,11 @@ link() {
   "${CLI}" -u "${SERVER}" set "daq_service:topology:link:$1:$2,$3:$4" none
 }
 
+echo "Clear DAQ service keys"
+"${CLI}" -u "${SERVER}" keys 'daq_service:*' | xargs "${CLI}" -u "${SERVER}" del
+
 endpoint STFBFilePlayer out type push method connect autoSubChannel true
-endpoint TimeFrameBuilder in type pull method bind address tcp://127.0.0.1:5500
-endpoint TimeFrameBuilder out type push method bind address tcp://127.0.0.1:5501 enable-uds false
+endpoint TimeFrameBuilder in  type pull method bind enable-uds false address tcp://127.0.0.1:5500
+endpoint TimeFrameBuilder out type push method bind enable-uds false address tcp://127.0.0.1:5501
 
 link STFBFilePlayer out TimeFrameBuilder in
