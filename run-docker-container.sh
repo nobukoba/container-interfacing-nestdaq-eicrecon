@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
-IMAGE="${IMAGE:-spadi-interfacing-nestdaq-eicrecon:latest}"
+IMAGE="${IMAGE:-container-interfacing-nestdaq-eicrecon:latest}"
 docker run --rm -it \
-  --name spadi-interfacing-nestdaq-eicrecon \
+  --name container-interfacing-nestdaq-eicrecon \
   --platform linux/amd64/v2 \
   --network host \
   -e DISPLAY=host.docker.internal:0 \
