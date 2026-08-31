@@ -54,7 +54,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          platforms: linux/amd64
+          platforms: linux/amd64/v2
           push: true
           build-args: |
             NPROC=4
@@ -67,7 +67,7 @@ jobs:
       - name: Show Docker image size
         shell: bash
         run: |
-          docker pull "${{ steps.image.outputs.ref }}:${{ steps.tag.outputs.tag }}"
+          docker pull --platform linux/amd64/v2 "${{ steps.image.outputs.ref }}:${{ steps.tag.outputs.tag }}"
           echo
           echo "=== Docker image size ==="
           docker image ls "${{ steps.image.outputs.ref }}:${{ steps.tag.outputs.tag }}"
