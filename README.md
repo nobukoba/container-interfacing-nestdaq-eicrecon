@@ -78,15 +78,24 @@ docker pull --platform linux/amd64/v2 \
   ghcr.io/nobukoba/container-interfacing-nestdaq-eicrecon:latest
 ```
 
-Run it with host networking:
+Create a persistent writable work directory:
+
+```bash
+mkdir -p work
+```
+
+Run the image with host networking and bind the host `work` directory to `/work` inside the container:
 
 ```bash
 docker run --rm -it \
   --name container-interfacing-nestdaq-eicrecon \
   --platform linux/amd64/v2 \
   --network host \
+  -v "$PWD/work:/work" \
   ghcr.io/nobukoba/container-interfacing-nestdaq-eicrecon:latest
 ```
+
+Files written under `/work` inside the container are therefore stored in `./work` on the host and remain available after the container exits.
 
 Open another shell in the running container with:
 
@@ -101,6 +110,14 @@ git clone https://github.com/nobukoba/container-interfacing-nestdaq-eicrecon.git
 cd container-interfacing-nestdaq-eicrecon
 ./build-docker-image.sh
 ./run-docker-container.sh
+```
+
+`run-docker-container.sh` automatically creates `./work` if necessary and binds it to `/work` in the container.
+
+To use a different host directory for `/work`, set `WORK_DIR`:
+
+```bash
+WORK_DIR=/path/to/work ./run-docker-container.sh
 ```
 
 A second shell can then be opened with:
@@ -170,7 +187,7 @@ The example configuration uses `run000020.dat` from each of the three directorie
 └── scripts/
 ```
 
-`/opt/spadi` contains software and helper scripts supplied by the image. `/work` is the writable user/development area.
+`/opt/spadi` contains software and helper scripts supplied by the image. `/work` is the writable user/development area. When using the provided Docker or Apptainer commands, `/work` is backed by the host-side `work` directory.
 
 ## Valkey and RedisTimeSeries
 
