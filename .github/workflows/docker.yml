@@ -13,7 +13,7 @@ on:
       - ".github/workflows/docker.yml"
 
 permissions:
-  contents: read
+  contents: write
   packages: write
 
 env:
@@ -64,16 +64,13 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-
       - name: Show Docker image size
         shell: bash
         run: |
           docker pull "${{ steps.image.outputs.ref }}:${{ steps.tag.outputs.tag }}"
-
           echo
           echo "=== Docker image size ==="
-          docker image ls \
-            "${{ steps.image.outputs.ref }}:${{ steps.tag.outputs.tag }}"
+          docker image ls "${{ steps.image.outputs.ref }}:${{ steps.tag.outputs.tag }}"
 
       - name: Set up Apptainer
         uses: eWaterCycle/setup-apptainer@v2
@@ -89,14 +86,19 @@ jobs:
           GHCR_USER: ${{ github.actor }}
           GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          printf '%s' "$GHCR_TOKEN" |             apptainer registry login               --username "$GHCR_USER"               --password-stdin               docker://ghcr.io
+          printf '%s' "$GHCR_TOKEN" | apptainer registry login \
+            --username "$GHCR_USER" \
+            --password-stdin \
+            docker://ghcr.io
 
       - name: Build SIF
         shell: bash
         run: |
-          apptainer build             "${SIF_NAME}"             "docker://${{ steps.image.outputs.ref }}:${{ steps.tag.outputs.tag }}"
-          cp "${SIF_NAME}"              "spadi-interfacing-nestdaq-eicrecon-${{ steps.tag.outputs.tag }}.sif"
-
+          apptainer build \
+            "${SIF_NAME}" \
+            "docker://${{ steps.image.outputs.ref }}:${{ steps.tag.outputs.tag }}"
+          cp "${SIF_NAME}" \
+            "spadi-interfacing-nestdaq-eicrecon-${{ steps.tag.outputs.tag }}.sif"
 
       - name: Show SIF image size
         shell: bash
@@ -104,7 +106,7 @@ jobs:
           echo
           echo "=== SIF image size ==="
           ls -lh \
-            "spadi-interfacing-nestdaq-eicrecon.sif" \
+            "${SIF_NAME}" \
             "spadi-interfacing-nestdaq-eicrecon-${{ steps.tag.outputs.tag }}.sif"
 
       - name: Smoke test SIF
@@ -114,13 +116,15 @@ jobs:
             set -e
             test -x /opt/spadi/scripts/build-local-nestdaq-user-impl.sh
             test -x /opt/spadi/scripts/example-interfacing-nestdaq-eicrecon/start-valkey.sh
+            test -x /opt/spadi/scripts/example-interfacing-nestdaq-eicrecon/run-stf-tf.sh
+            test -x /opt/spadi/scripts/example-interfacing-nestdaq-eicrecon/keep-device-window.sh
             test -d /opt/spadi/scripts/exp-config
             test -d /opt/spadi/example_rawdata/raris_ac_lgad_202603
             command -v valkey-server
-            command -v wget
             command -v tmux
-            command -v xterm
-            command -v emacs
+            valkey-server --bind 127.0.0.1 --port 6379 --daemonize yes --dir /tmp --loadmodule /opt/spadi/lib/redistimeseries.so
+            valkey-cli COMMAND INFO TS.ADD | grep -qi ts.add
+            valkey-cli shutdown nosave
           '
 
       - name: Upload SIF artifacts
@@ -133,3 +137,17 @@ jobs:
           if-no-files-found: error
           compression-level: 0
           retention-days: 30
+
+      - name: Publish latest SIF release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest
+          name: Latest SIF image
+          prerelease: false
+          make_latest: true
+          files: |
+            spadi-interfacing-nestdaq-eicrecon.sif
+            spadi-interfacing-nestdaq-eicrecon-${{ steps.tag.outputs.tag }}.sif
+          body: |
+            Automatically built from the latest successful main-branch container build.
+            Build: ${{ steps.tag.outputs.tag }}
