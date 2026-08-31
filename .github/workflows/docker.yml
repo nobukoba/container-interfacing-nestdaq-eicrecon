@@ -1,0 +1,135 @@
+name: Build Docker and SIF
+
+on:
+  workflow_dispatch:
+
+  push:
+    branches:
+      - main
+    paths:
+      - "Dockerfile"
+      - "scripts/**"
+      - "example_rawdata/**"
+      - ".github/workflows/docker.yml"
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  IMAGE_NAME: spadi-interfacing-nestdaq-eicrecon
+  SIF_NAME: spadi-interfacing-nestdaq-eicrecon.sif
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set UTC tag
+        id: tag
+        shell: bash
+        run: |
+          echo "tag=$(date -u +%Y%m%d-%H%Mutc)" >> "$GITHUB_OUTPUT"
+
+      - name: Set image name
+        id: image
+        shell: bash
+        run: |
+          echo "ref=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/${IMAGE_NAME}" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: linux/amd64
+          push: true
+          build-args: |
+            NPROC=4
+          tags: |
+            ${{ steps.image.outputs.ref }}:${{ steps.tag.outputs.tag }}
+            ${{ steps.image.outputs.ref }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+
+      - name: Show Docker image size
+        shell: bash
+        run: |
+          docker pull "${{ steps.image.outputs.ref }}:${{ steps.tag.outputs.tag }}"
+
+          echo
+          echo "=== Docker image size ==="
+          docker image ls \
+            "${{ steps.image.outputs.ref }}:${{ steps.tag.outputs.tag }}"
+
+      - name: Set up Apptainer
+        uses: eWaterCycle/setup-apptainer@v2
+        with:
+          apptainer-version: 1.4.2
+
+      - name: Show Apptainer version
+        run: apptainer version
+
+      - name: Log in to GHCR from Apptainer
+        shell: bash
+        env:
+          GHCR_USER: ${{ github.actor }}
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          printf '%s' "$GHCR_TOKEN" |             apptainer registry login               --username "$GHCR_USER"               --password-stdin               docker://ghcr.io
+
+      - name: Build SIF
+        shell: bash
+        run: |
+          apptainer build             "${SIF_NAME}"             "docker://${{ steps.image.outputs.ref }}:${{ steps.tag.outputs.tag }}"
+          cp "${SIF_NAME}"              "spadi-interfacing-nestdaq-eicrecon-${{ steps.tag.outputs.tag }}.sif"
+
+
+      - name: Show SIF image size
+        shell: bash
+        run: |
+          echo
+          echo "=== SIF image size ==="
+          ls -lh \
+            "spadi-interfacing-nestdaq-eicrecon.sif" \
+            "spadi-interfacing-nestdaq-eicrecon-${{ steps.tag.outputs.tag }}.sif"
+
+      - name: Smoke test SIF
+        shell: bash
+        run: |
+          apptainer exec "${SIF_NAME}" bash -lc '
+            set -e
+            test -x /opt/spadi/scripts/build-local-nestdaq-user-impl.sh
+            test -x /opt/spadi/scripts/example-interfacing-nestdaq-eicrecon/start-valkey.sh
+            test -d /opt/spadi/scripts/exp-config
+            test -d /opt/spadi/example_rawdata/raris_ac_lgad_202603
+            command -v valkey-server
+            command -v wget
+            command -v tmux
+            command -v xterm
+            command -v emacs
+          '
+
+      - name: Upload SIF artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: spadi-interfacing-nestdaq-eicrecon-${{ steps.tag.outputs.tag }}-sif
+          path: |
+            spadi-interfacing-nestdaq-eicrecon.sif
+            spadi-interfacing-nestdaq-eicrecon-${{ steps.tag.outputs.tag }}.sif
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 30
