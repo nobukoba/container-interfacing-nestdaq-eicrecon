@@ -103,12 +103,22 @@ RUN cd ${SPADI_ROOT}/src && \
     test -n "${RTS_SO}" && \
     install -m 0755 "${RTS_SO}" ${SPADI_ROOT}/lib/redistimeseries.so
 
+# NestDAQ's common.cmake uses -march=native for Release builds.  On native
+# GitHub x86 runners this enables AVX, while Apple Silicon Docker's x86_64
+# emulation does not expose AVX.  Force an x86-64-v2 / non-AVX Release build.
 RUN cd ${SPADI_ROOT}/src && \
     git clone --depth 1 https://github.com/spadi-alliance/nestdaq.git && \
+    sed -i \
+      's/-Ofast -DNDEBUG -march=native/-Ofast -DNDEBUG -march=x86-64-v2 -mtune=generic -mno-avx -mno-avx2/' \
+      nestdaq/cmake/common.cmake && \
     cmake -S nestdaq -B nestdaq/build -DCMAKE_BUILD_TYPE=Release \
       -DCMAKE_INSTALL_PREFIX=${SPADI_ROOT} -DCMAKE_PREFIX_PATH=${SPADI_ROOT} \
       -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_CXX_STANDARD=17 && \
-    cmake --build nestdaq/build -j${NPROC} && cmake --install nestdaq/build
+    cmake --build nestdaq/build -j${NPROC} --verbose && \
+    cmake --install nestdaq/build && \
+    echo '=== Checking NestDAQ executables for AVX instructions ===' && \
+    ! objdump -d ${SPADI_ROOT}/bin/TimeFrameBuilder | grep -Eq 'vzeroupper|ymm[0-9]+|zmm[0-9]+|vmovdqu' && \
+    ! objdump -d ${SPADI_ROOT}/bin/daq-webctl | grep -Eq 'vzeroupper|ymm[0-9]+|zmm[0-9]+|vmovdqu'
 
 RUN cd ${SPADI_ROOT}/src && \
     git clone --depth 1 https://github.com/spadi-alliance/uhbook.git && \
