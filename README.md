@@ -2,6 +2,14 @@
 
 NestDAQ-side Docker / Apptainer environment for the NestDAQ–EICrecon interface.
 
+## Rebuilding with ChatGPT
+
+A reusable prompt for asking ChatGPT to inspect this repository and recreate or maintain the container image is available here:
+
+[ChatGPT prompt for rebuilding this container image](docs/CHATGPT_REBUILD_PROMPT.md)
+
+The repository itself remains the authoritative source for package versions, scripts, build options, and runtime configuration.
+
 ## How to use
 
 ### Apptainer / Singularity
