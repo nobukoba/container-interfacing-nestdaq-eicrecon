@@ -40,11 +40,11 @@ RUN mkdir -p \
       ${SPADI_ROOT}/lib64 \
       ${SPADI_ROOT}/scripts \
       ${SPADI_EXAMPLE_RAWDATA}/raris_ac_lgad_202603 \
-      /work/src \
-      /work/build \
-      /work/local \
-      /work/scripts && \
-    chmod 1777 /work
+      /workspace/src \
+      /workspace/build \
+      /workspace/local \
+      /workspace/scripts && \
+    chmod 1777 /workspace
 
 RUN cd ${SPADI_ROOT}/src && \
     git clone --depth 1 --branch ${LIBZMQ_VERSION} https://github.com/zeromq/libzmq.git && \
@@ -167,5 +167,5 @@ RUN chmod +x \
 
 RUN printf '%s\n' '/opt/spadi/lib' '/opt/spadi/lib64' > /etc/ld.so.conf.d/spadi.conf && ldconfig
 
-WORKDIR /work
+WORKDIR /workspace
 CMD ["/bin/bash"]
