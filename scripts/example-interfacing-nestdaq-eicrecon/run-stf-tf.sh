@@ -38,6 +38,9 @@ fi
 "${TMUX[@]}" set-window-option -g -t "${SESSION}" remain-on-exit on
 "${TMUX[@]}" set-option -t "${SESSION}" allow-rename off
 
+# Close the current pane immediately with Ctrl-b x, without asking for y/n.
+"${TMUX[@]}" bind-key x kill-pane
+
 echo "Starting daq-webctl..."
 "${TMUX[@]}" new-window \
   -t "${SESSION}" \
@@ -68,6 +71,7 @@ echo "NestDAQ tmux windows:"
 echo
 echo "The control window is kept alive permanently."
 echo "STF/TFB windows also remain visible after their device process exits."
+echo "Use Ctrl-b x to close the current pane without confirmation."
 echo "Dedicated tmux socket: ${TMUX_SOCKET}"
 echo
 echo "Attaching to tmux session: ${SESSION}"
