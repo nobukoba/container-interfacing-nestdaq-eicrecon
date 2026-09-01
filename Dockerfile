@@ -27,7 +27,7 @@ RUN dnf -y update && \
       boost-devel openssl-devel libuuid-devel sqlite-devel \
       libtool autoconf automake \
       which findutils diffutils patch tar gzip bzip2 xz \
-      curl wget ca-certificates python3 python3-pip rsync jq \
+      wget ca-certificates python3 python3-pip rsync jq \
       valkey tmux xterm emacs binutils file procps-ng \
       net-tools nmap-ncat iproute iputils && \
     dnf clean all && rm -rf /var/cache/dnf
