@@ -151,6 +151,9 @@ s = s.replace("find_package(ROOT REQUIRED COMPONENTS RIO RHTTP Hist)",
 s = s.replace("    TriggerView;\n", "")
 s = s.replace('set(CMAKE_CXX_FLAGS_RELEASE "-Ofast -DNDEBUG -march=native")',
               'set(CMAKE_CXX_FLAGS_RELEASE "-Ofast -DNDEBUG -march=x86-64-v2 -mtune=generic -mno-avx -mno-avx2")')
+s = s.replace("  target_include_directories(${EXEC} PUBLIC \n",
+              "  target_include_directories(${EXEC} PUBLIC \n    ${CMAKE_INSTALL_PREFIX}/include;\n",
+              1)
 p.write_text(s)
 PY
 
