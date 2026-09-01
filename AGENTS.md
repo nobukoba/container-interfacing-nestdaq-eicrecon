@@ -23,7 +23,7 @@ EICrecon itself runs in a separate container/environment and communicates with N
 
 ## Important build requirements
 
-1. Build the container from the AlmaLinux version currently selected in the Dockerfile. The `almalinux9` branch is intended to evaluate AlmaLinux 9 before merging the change into `main`.
+1. Build the container from AlmaLinux 9. Keep AlmaLinux 9 as the base unless a version change is explicitly requested and tested.
 
 2. Publish and run the container as `linux/amd64`, not `linux/amd64/v2`. CPU compatibility of compiled NestDAQ software is controlled separately by compiler flags.
 
