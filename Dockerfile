@@ -30,6 +30,8 @@ RUN dnf -y update && \
       wget ca-certificates python3 python3-pip rsync jq \
       valkey tmux xterm emacs binutils file procps-ng \
       net-tools nmap-ncat iproute iputils && \
+    ln -sf "$(command -v python3)" /usr/local/bin/python3.9 && \
+    python3.9 --version && \
     dnf clean all && rm -rf /var/cache/dnf
 
 RUN mkdir -p \
