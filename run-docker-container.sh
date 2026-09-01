@@ -2,14 +2,12 @@
 set -euo pipefail
 
 IMAGE="${IMAGE:-container-interfacing-nestdaq-eicrecon:latest}"
-WORK_DIR="${WORK_DIR:-$PWD/work}"
-
-mkdir -p "${WORK_DIR}"
+WORKSPACE_DIR="${WORKSPACE_DIR:-$PWD}"
 
 docker run --rm -it \
   --name container-interfacing-nestdaq-eicrecon \
-  --platform linux/amd64/v2 \
+  --platform linux/amd64 \
   --network host \
-  -v "${WORK_DIR}:/work" \
+  -v "${WORKSPACE_DIR}:/workspace" \
   -e DISPLAY=host.docker.internal:0 \
   "${IMAGE}"
