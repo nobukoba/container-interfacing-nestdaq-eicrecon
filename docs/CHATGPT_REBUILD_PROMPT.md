@@ -4,6 +4,16 @@ This page contains a reusable prompt for asking ChatGPT to recreate or maintain 
 
 The prompt is intentionally written so that ChatGPT should inspect the current repository before making changes instead of relying on an old copy of the Dockerfile.
 
+## ChatGPT plan requirements
+
+This prompt can still be useful with the free version of ChatGPT for understanding the repository, reviewing public GitHub files, generating Dockerfiles/scripts, and suggesting changes. However, the complete workflow described here is **not guaranteed to work with ChatGPT Free**.
+
+In particular, GitHub integration and the ability to work directly with repository contents depend on the ChatGPT plan and product experience. Directly generating, editing, and pushing repository changes requires an appropriate coding workflow such as Codex; the ordinary GitHub integration is primarily for reading and analyzing repositories.
+
+For the closest experience to the workflow for which this prompt was written—reading the current repository, making coordinated changes across multiple files, and working iteratively with GitHub—a paid ChatGPT plan with the required GitHub/Codex capabilities is recommended.
+
+If GitHub repository access is unavailable in the ChatGPT session, provide the repository URL and ask ChatGPT to read the public files from the web, or paste/upload the relevant files. The resulting files can then be applied to the repository manually.
+
 ## Prompt
 
 Copy the following prompt into ChatGPT:
@@ -25,6 +35,8 @@ Please inspect the current repository first, especially:
 - example_rawdata/
 
 Do not recreate the environment only from this prompt. Treat the current files in the GitHub repository as the authoritative source and preserve their current behavior unless a change is necessary.
+
+If your ChatGPT plan or current mode cannot access GitHub directly, read the public repository through web access if available. If that is also unavailable, tell me which files I need to paste or upload. Do not pretend that you inspected files that you could not access.
 
 The purpose of this repository is to provide the NestDAQ side of a NestDAQ–EICrecon interface environment. EICrecon itself runs in a separate container/environment and communicates with NestDAQ over the network.
 
