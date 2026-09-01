@@ -25,6 +25,7 @@ RUN dnf -y update && \
     dnf -y install \
       git gcc gcc-c++ make cmake pkgconf-pkg-config \
       boost-devel openssl-devel libuuid-devel sqlite-devel \
+      bzip2-devel xz-devel zlib-devel libzstd-devel \
       libtool autoconf automake \
       which findutils diffutils patch tar gzip bzip2 xz \
       wget ca-certificates python3 python3-pip python3-setuptools rsync jq \
