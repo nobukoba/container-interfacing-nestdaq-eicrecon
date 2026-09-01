@@ -2,13 +2,13 @@
 
 NestDAQ-side Docker / Apptainer environment for the NestDAQ–EICrecon interface.
 
-## AI-assisted development
+## Development
 
-ChatGPT, Codex, and other AI coding agents should read [AGENTS.md](AGENTS.md) before rebuilding or modifying this container environment.
+For development and maintenance of this container, please use **ChatGPT, Codex, or another AI assistant/coding agent** together with the instructions in [`AGENTS.md`](./AGENTS.md).
 
-`AGENTS.md` contains the important build constraints, architecture decisions, CPU compatibility requirements, runtime topology, and instructions for reproducing and maintaining this repository.
+Before modifying the container, ask the AI agent to read `AGENTS.md` and inspect the current repository files. `AGENTS.md` contains the repository-specific build requirements, directory layout, container image conventions, and maintenance guidelines.
 
-The repository itself remains the authoritative source for package versions, scripts, build options, and runtime configuration.
+`CHATGPT_REBUILD_PROMPT.md` is not used in this repository. The repository itself and `AGENTS.md` are the authoritative sources for development and maintenance.
 
 ## How to use
 
