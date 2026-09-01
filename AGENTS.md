@@ -23,13 +23,13 @@ EICrecon itself runs in a separate container/environment and communicates with N
 
 ## Important build requirements
 
-1. Build the container from AlmaLinux 10.
+1. Build the container from the AlmaLinux version currently selected in the Dockerfile. The `almalinux9` branch is intended to evaluate AlmaLinux 9 before merging the change into `main`.
 
-2. Target `x86-64-v2` / `linux/amd64/v2` so that the resulting image can also run under x86_64 emulation on Apple Silicon Macs.
+2. Publish and run the container as `linux/amd64`, not `linux/amd64/v2`. CPU compatibility of compiled NestDAQ software is controlled separately by compiler flags.
 
 3. Do not allow AVX/AVX2 instructions into NestDAQ or nestdaq-user-impl executables. The Apple Silicon Docker x86_64 environment used for testing does not expose AVX.
 
-4. NestDAQ and nestdaq-user-impl currently contain Release compiler settings using `-march=native`. Patch those settings during the container build so Release builds use an x86-64-v2-compatible non-AVX configuration instead, for example:
+4. NestDAQ and nestdaq-user-impl currently contain Release compiler settings using `-march=native`. Patch those settings during the container build so Release builds use an x86-64-v2-compatible non-AVX configuration, for example:
 
    ```text
    -march=x86-64-v2 -mtune=generic -mno-avx -mno-avx2
@@ -39,7 +39,7 @@ EICrecon itself runs in a separate container/environment and communicates with N
 
 5. Verify important generated executables with `objdump` so AVX instructions such as `vzeroupper`, YMM/ZMM register use, or VEX-encoded AVX instructions do not accidentally enter the distributed image.
 
-6. Do not assume that `linux/amd64/v2` alone prevents `-march=native` from generating AVX on a native x86 GitHub Actions runner. The target platform and compiler CPU optimization are separate issues.
+6. Do not assume that the Docker platform setting prevents `-march=native` from generating AVX on a native x86 GitHub Actions runner. Docker image platform and compiler CPU optimization are separate issues.
 
 ## Container layout
 
@@ -63,18 +63,24 @@ Important directories include:
 
 Keep `/opt/spadi` as the image-provided software area.
 
-Use `/work` as the persistent writable user/development area.
+Use `/workspace` as the persistent writable user/development area.
 
-The Docker run helper must bind a host work directory to `/work`. By default:
+For Docker, bind the current host directory directly to `/workspace`:
 
 ```text
-host:      $PWD/work
-container: /work
+host:      $PWD
+container: /workspace
 ```
 
-`run-docker-container.sh` should create the host work directory automatically if it does not exist. It should also allow another host directory to be selected with the `WORK_DIR` environment variable.
+The standard Docker mapping is therefore:
 
-Docker and Apptainer/Singularity should both support a persistent host work directory mapped to `/work`.
+```bash
+-v "$PWD:/workspace"
+```
+
+`run-docker-container.sh` should use the current directory by default and allow another host directory to be selected with the `WORKSPACE_DIR` environment variable.
+
+Docker and Apptainer/Singularity should both support mapping a host directory to `/workspace`.
 
 ## Software stack
 
@@ -118,7 +124,7 @@ EICrecon
 
 EICrecon is external to this image.
 
-The example startup scripts use `tmux` so that STFBFilePlayer instances, TimeFrameBuilder, and control processes can be inspected separately and their final output remains visible after a process exits.
+The example startup scripts use `tmux` so that STFBFilePlayer instances, TimeFrameBuilder, and control processes can be inspected separately and their final output remains visible after a process exits. The session binds `Ctrl-b x` to close the current pane without a confirmation prompt.
 
 ## GitHub Actions and images
 
@@ -127,6 +133,8 @@ GitHub Actions should build and publish the Docker image to:
 ```text
 ghcr.io/nobukoba/container-interfacing-nestdaq-eicrecon
 ```
+
+The Docker image platform is `linux/amd64`.
 
 It should provide both `latest` and timestamped tags as currently defined by the workflow.
 
