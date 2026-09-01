@@ -27,7 +27,7 @@ RUN dnf -y update && \
       boost-devel openssl-devel libuuid-devel sqlite-devel \
       libtool autoconf automake \
       which findutils diffutils patch tar gzip bzip2 xz \
-      wget ca-certificates python3 python3-pip rsync jq \
+      wget ca-certificates python3 python3-pip python3-setuptools rsync jq \
       valkey tmux xterm emacs binutils file procps-ng \
       net-tools nmap-ncat iproute iputils && \
     ln -sf "$(command -v python3)" /usr/local/bin/python3.9 && \
