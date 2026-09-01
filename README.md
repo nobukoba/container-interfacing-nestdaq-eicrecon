@@ -274,7 +274,7 @@ The `latest` release provides the stable URL used by the `curl` command at the t
 
 ## CPU compatibility
 
-The image is compiled with an x86-64-v2-compatible non-AVX configuration for NestDAQ-related executables:
+The image is based on AlmaLinux 9. NestDAQ-related executables are compiled with an x86-64-v2-compatible non-AVX configuration:
 
 ```text
 -O2 -march=x86-64-v2 -mtune=generic
