@@ -31,7 +31,9 @@ RUN dnf -y update && \
       valkey tmux xterm emacs binutils file procps-ng \
       net-tools nmap-ncat iproute iputils && \
     ln -sf "$(command -v python3)" /usr/local/bin/python3.9 && \
+    ln -sf "$(command -v gcc)" /usr/local/bin/cc && \
     python3.9 --version && \
+    cc --version && \
     dnf clean all && rm -rf /var/cache/dnf
 
 RUN mkdir -p \
