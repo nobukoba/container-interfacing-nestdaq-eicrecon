@@ -58,6 +58,7 @@ Useful tmux keys:
 Ctrl-b n      next window
 Ctrl-b p      previous window
 Ctrl-b 0..4   select window
+Ctrl-b x      close the current pane without confirmation
 Ctrl-b d      detach
 ```
 
@@ -67,7 +68,7 @@ Reattach with:
 tmux -L spadi-sif attach -t nestdaq
 ```
 
-The STF/TFB windows remain open after their device exits so that the final log and exit status can be inspected.
+The STF/TFB windows remain open after their device exits so that the final log and exit status can be inspected. A dead pane can be closed immediately with `Ctrl-b x`; this session is configured not to ask for `y/n` confirmation.
 
 ### Docker
 
