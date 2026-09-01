@@ -140,6 +140,10 @@ RUN cd ${SPADI_ROOT}/src && \
 # nestdaq-user-impl also sets -march=native unconditionally for Release builds.
 # Patch that project setting itself so GitHub-hosted native x86 builders cannot
 # re-enable AVX after command-line/environment flags have been supplied.
+# Its internal Utility and AmQTdcModule targets are declared after executables
+# that link to them, so CMake treats those names as external -l libraries.
+# Move the subdirectories before the executable definitions so they are proper
+# CMake targets and can be linked from the same build tree.
 RUN cd ${SPADI_ROOT}/src && \
     git clone --depth 1 https://github.com/spadi-alliance/nestdaq-user-impl.git && \
     python3 - <<'PY'
@@ -154,6 +158,10 @@ s = s.replace('set(CMAKE_CXX_FLAGS_RELEASE "-Ofast -DNDEBUG -march=native")',
 s = s.replace("  target_include_directories(${EXEC} PUBLIC \n",
               "  target_include_directories(${EXEC} PUBLIC \n    ${CMAKE_INSTALL_PREFIX}/include;\n",
               1)
+s = s.replace("#==============================================================================\n# Sampler(for Emulator), Sink, FileSink, STFBuilder, TimeFrameBuilder\n",
+              "#==============================================================================\n# Internal libraries must exist before executables link to them.\nadd_subdirectory(utility)\nadd_subdirectory(emulator)\nadd_subdirectory(sqlite)\n\n#==============================================================================\n# Sampler(for Emulator), Sink, FileSink, STFBuilder, TimeFrameBuilder\n",
+              1)
+s = s.replace("#================================================================================\nadd_subdirectory(utility)\nadd_subdirectory(emulator)\nadd_subdirectory(sqlite)\n", "", 1)
 p.write_text(s)
 PY
 
