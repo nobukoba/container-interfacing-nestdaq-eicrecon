@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-SRC_DIR="/work/src/nestdaq-user-impl"
-BUILD_DIR="/work/build/nestdaq-user-impl"
-INSTALL_DIR="/work/local"
+SRC_DIR="/workspace/src/nestdaq-user-impl"
+BUILD_DIR="/workspace/build/nestdaq-user-impl"
+INSTALL_DIR="/workspace/local"
 NPROC="${NPROC:-4}"
 
-mkdir -p /work/src /work/build "${INSTALL_DIR}"
+mkdir -p /workspace/src /workspace/build "${INSTALL_DIR}"
 
 if [[ ! -d "${SRC_DIR}/.git" ]]; then
     git clone https://github.com/spadi-alliance/nestdaq-user-impl.git "${SRC_DIR}"
@@ -16,7 +16,7 @@ fi
 
 python3 - <<'PY'
 from pathlib import Path
-p = Path("/work/src/nestdaq-user-impl/CMakeLists.txt")
+p = Path("/workspace/src/nestdaq-user-impl/CMakeLists.txt")
 s = p.read_text()
 s = s.replace("find_package(ROOT REQUIRED COMPONENTS RIO RHTTP Hist)",
               'message(STATUS "ROOT support disabled")')
