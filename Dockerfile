@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM quay.io/almalinuxorg/10-base:10
+FROM quay.io/almalinuxorg/9-base:9
 
 ARG NPROC=4
 ARG LIBZMQ_VERSION=v4.3.5
@@ -89,9 +89,8 @@ RUN cd ${SPADI_ROOT}/src && \
     cmake --build redis-plus-plus/build -j${NPROC} && cmake --install redis-plus-plus/build
 
 # NestDAQ's metrics plugin uses RedisTimeSeries commands such as TS.ADD.
-# RedisTimeSeries' sbin/setup relies on distro-detection helpers that do not yet
-# recognize AlmaLinux 10 correctly.  The image already contains the build
-# prerequisites, so build the module directly instead of running sbin/setup.
+# Build the module directly because the image already contains the required
+# build prerequisites and this avoids distribution-detection setup differences.
 # v1.10.x is used because it targets Redis/Valkey 7.2-era module APIs; v1.12.x
 # requires Redis 7.4 or newer.
 RUN cd ${SPADI_ROOT}/src && \
