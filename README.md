@@ -2,11 +2,11 @@
 
 NestDAQ-side Docker / Apptainer environment for the NestDAQ–EICrecon interface.
 
-## Rebuilding with ChatGPT
+## AI-assisted development
 
-A reusable prompt for asking ChatGPT to inspect this repository and recreate or maintain the container image is available here:
+ChatGPT, Codex, and other AI coding agents should read [AGENTS.md](AGENTS.md) before rebuilding or modifying this container environment.
 
-[ChatGPT prompt for rebuilding this container image](docs/CHATGPT_REBUILD_PROMPT.md)
+`AGENTS.md` contains the important build constraints, architecture decisions, CPU compatibility requirements, runtime topology, and instructions for reproducing and maintaining this repository.
 
 The repository itself remains the authoritative source for package versions, scripts, build options, and runtime configuration.
 
