@@ -2,14 +2,6 @@
 
 NestDAQ-side Docker / Apptainer environment for the NestDAQ–EICrecon interface.
 
-## Development
-
-For development and maintenance of this container, please use **ChatGPT, Codex, or another AI assistant/coding agent** together with the instructions in [`AGENTS.md`](./AGENTS.md).
-
-Before modifying the container, ask the AI agent to read `AGENTS.md` and inspect the current repository files. `AGENTS.md` contains the repository-specific build requirements, directory layout, container image conventions, and maintenance guidelines.
-
-`CHATGPT_REBUILD_PROMPT.md` is not used in this repository. The repository itself and `AGENTS.md` are the authoritative sources for development and maintenance.
-
 ## How to use
 
 ### Apptainer / Singularity
@@ -111,7 +103,17 @@ Open another shell in the running container with:
 docker exec -it container-interfacing-nestdaq-eicrecon bash
 ```
 
-For development, clone the repository and build the Docker image locally. The build script also targets `linux/amd64/v2`:
+## For developers
+
+For development and maintenance of this container, please use **ChatGPT, Codex, or another AI assistant/coding agent** together with the instructions in [`AGENTS.md`](./AGENTS.md).
+
+Before modifying the container, ask the AI agent to read `AGENTS.md` and inspect the current repository files. `AGENTS.md` contains the repository-specific build requirements, directory layout, container image conventions, and maintenance guidelines.
+
+`CHATGPT_REBUILD_PROMPT.md` is not used in this repository. The repository itself and `AGENTS.md` are the authoritative sources for development and maintenance.
+
+### Building the Docker image locally
+
+Clone the repository and build the Docker image locally. The build script targets `linux/amd64/v2`:
 
 ```bash
 git clone https://github.com/nobukoba/container-interfacing-nestdaq-eicrecon.git
@@ -132,6 +134,30 @@ A second shell can then be opened with:
 
 ```bash
 ./login-docker-container.sh
+```
+
+### Developing nestdaq-user-impl
+
+With `/work` bound into the container:
+
+```bash
+/opt/spadi/scripts/build-local-nestdaq-user-impl.sh
+```
+
+It uses:
+
+```text
+source  : /work/src/nestdaq-user-impl
+build   : /work/build/nestdaq-user-impl
+install : /work/local
+```
+
+To use the locally installed version:
+
+```bash
+export PATH=/work/local/bin:$PATH
+export LD_LIBRARY_PATH=/work/local/lib:/work/local/lib64:$LD_LIBRARY_PATH
+export CMAKE_PREFIX_PATH=/work/local:$CMAKE_PREFIX_PATH
 ```
 
 ## Images
@@ -212,30 +238,6 @@ The image builds RedisTimeSeries v1.10.24 and loads `redistimeseries.so` into Va
 ```
 
 The startup script verifies `PING` and availability of `TS.ADD`.
-
-## Developing nestdaq-user-impl
-
-With `/work` bound into the container:
-
-```bash
-/opt/spadi/scripts/build-local-nestdaq-user-impl.sh
-```
-
-It uses:
-
-```text
-source  : /work/src/nestdaq-user-impl
-build   : /work/build/nestdaq-user-impl
-install : /work/local
-```
-
-To use the locally installed version:
-
-```bash
-export PATH=/work/local/bin:$PATH
-export LD_LIBRARY_PATH=/work/local/lib:/work/local/lib64:$LD_LIBRARY_PATH
-export CMAKE_PREFIX_PATH=/work/local:$CMAKE_PREFIX_PATH
-```
 
 ## Networking
 
