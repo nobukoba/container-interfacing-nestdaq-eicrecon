@@ -14,17 +14,11 @@ curl -fL \
   https://github.com/nobukoba/container-interfacing-nestdaq-eicrecon/releases/latest/download/container-interfacing-nestdaq-eicrecon.sif
 ```
 
-Create a persistent writable work directory:
-
-```bash
-mkdir -p work
-```
-
-Start with Apptainer:
+Start with Apptainer and bind the current directory to `/workspace`:
 
 ```bash
 apptainer shell \
-  --bind "$PWD/work:/work" \
+  --bind "$PWD:/workspace" \
   container-interfacing-nestdaq-eicrecon.sif
 ```
 
@@ -32,7 +26,7 @@ For SingularityCE:
 
 ```bash
 singularity shell \
-  --bind "$PWD/work:/work" \
+  --bind "$PWD:/workspace" \
   container-interfacing-nestdaq-eicrecon.sif
 ```
 
@@ -72,31 +66,25 @@ The STF/TFB windows remain open after their device exits so that the final log a
 
 ### Docker
 
-For normal use, pull the prebuilt x86-64-v2 image from GHCR:
+For normal use, pull the prebuilt x86_64 image from GHCR:
 
 ```bash
-docker pull --platform linux/amd64/v2 \
+docker pull --platform linux/amd64 \
   ghcr.io/nobukoba/container-interfacing-nestdaq-eicrecon:latest
 ```
 
-Create a persistent writable work directory:
-
-```bash
-mkdir -p work
-```
-
-Run the image with host networking and bind the host `work` directory to `/work` inside the container:
+Run the image with host networking and bind the current host directory to `/workspace` inside the container:
 
 ```bash
 docker run --rm -it \
   --name container-interfacing-nestdaq-eicrecon \
-  --platform linux/amd64/v2 \
+  --platform linux/amd64 \
   --network host \
-  -v "$PWD/work:/work" \
+  -v "$PWD:/workspace" \
   ghcr.io/nobukoba/container-interfacing-nestdaq-eicrecon:latest
 ```
 
-Files written under `/work` inside the container are therefore stored in `./work` on the host and remain available after the container exits.
+Files written under `/workspace` inside the container are therefore stored directly in the current host directory and remain available after the container exits.
 
 Open another shell in the running container with:
 
@@ -114,7 +102,7 @@ Before modifying the container, ask the AI agent to read `AGENTS.md` and inspect
 
 ### Building the Docker image locally
 
-Clone the repository and build the Docker image locally. The build script targets `linux/amd64/v2`:
+Clone the repository and build the Docker image locally. The build script targets `linux/amd64`:
 
 ```bash
 git clone https://github.com/nobukoba/container-interfacing-nestdaq-eicrecon.git
@@ -123,13 +111,7 @@ cd container-interfacing-nestdaq-eicrecon
 ./run-docker-container.sh
 ```
 
-`run-docker-container.sh` automatically creates `./work` if necessary and binds it to `/work` in the container.
-
-To use a different host directory for `/work`, set `WORK_DIR`:
-
-```bash
-WORK_DIR=/path/to/work ./run-docker-container.sh
-```
+`run-docker-container.sh` binds the current directory to `/workspace` in the container.
 
 A second shell can then be opened with:
 
@@ -139,7 +121,7 @@ A second shell can then be opened with:
 
 ### Developing nestdaq-user-impl
 
-With `/work` bound into the container:
+With the current directory bound to `/workspace` in the container:
 
 ```bash
 /opt/spadi/scripts/build-local-nestdaq-user-impl.sh
@@ -148,17 +130,17 @@ With `/work` bound into the container:
 It uses:
 
 ```text
-source  : /work/src/nestdaq-user-impl
-build   : /work/build/nestdaq-user-impl
-install : /work/local
+source  : /workspace/src/nestdaq-user-impl
+build   : /workspace/build/nestdaq-user-impl
+install : /workspace/local
 ```
 
 To use the locally installed version:
 
 ```bash
-export PATH=/work/local/bin:$PATH
-export LD_LIBRARY_PATH=/work/local/lib:/work/local/lib64:$LD_LIBRARY_PATH
-export CMAKE_PREFIX_PATH=/work/local:$CMAKE_PREFIX_PATH
+export PATH=/workspace/local/bin:$PATH
+export LD_LIBRARY_PATH=/workspace/local/lib:/workspace/local/lib64:$LD_LIBRARY_PATH
+export CMAKE_PREFIX_PATH=/workspace/local:$CMAKE_PREFIX_PATH
 ```
 
 ## Images
@@ -215,14 +197,14 @@ The example configuration uses `run000020.dat` from each of the three directorie
 └── example_rawdata/
     └── raris_ac_lgad_202603/
 
-/work/
+/workspace/
 ├── src/
 ├── build/
 ├── local/
 └── scripts/
 ```
 
-`/opt/spadi` contains software and helper scripts supplied by the image. `/work` is the writable user/development area. When using the provided Docker or Apptainer commands, `/work` is backed by the host-side `work` directory.
+`/opt/spadi` contains software and helper scripts supplied by the image. `/workspace` is the writable user/development area. When using the provided Docker or Apptainer commands, the current host directory is mounted directly at `/workspace`.
 
 ## Valkey and RedisTimeSeries
 
@@ -272,7 +254,7 @@ It is also triggered by changes to build-related files on `main`.
 GitHub repository
        |
        v
-Docker build (linux/amd64/v2)
+Docker build (linux/amd64)
        |
        v
 GHCR
@@ -292,10 +274,10 @@ The `latest` release provides the stable URL used by the `curl` command at the t
 
 ## CPU compatibility
 
-The image is based on AlmaLinux 10 and is compiled with the x86-64-v2 baseline:
+The image is compiled with an x86-64-v2-compatible non-AVX configuration for NestDAQ-related executables:
 
 ```text
 -O2 -march=x86-64-v2 -mtune=generic
 ```
 
-This keeps compatibility with DAQ machines that do not provide x86-64-v3.
+The Docker image platform itself is published as `linux/amd64`.
