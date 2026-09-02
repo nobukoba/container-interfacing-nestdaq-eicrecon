@@ -2,11 +2,6 @@
 
 NestDAQ-side Docker / Apptainer environment for the NestDAQ–EICrecon interface.
 
-> **AlmaLinux 9 development branch:** this branch is currently being validated.
-> Until its Docker build, SIF build, and smoke test pass, use the
-> `almalinux9` image tag for testing rather than treating `latest` as the
-> AlmaLinux 9 image.
-
 ## How to use
 
 ### Apptainer / Singularity
@@ -78,9 +73,6 @@ docker pull --platform linux/amd64 \
   ghcr.io/nobukoba/container-interfacing-nestdaq-eicrecon:latest
 ```
 
-To test the image produced from this `almalinux9` branch, replace `latest` in
-the pull and run commands with `almalinux9`.
-
 Run the image with host networking and bind the current host directory to `/workspace` inside the container:
 
 ```bash
@@ -115,7 +107,6 @@ Clone the repository and build the Docker image locally. The build script target
 ```bash
 git clone https://github.com/nobukoba/container-interfacing-nestdaq-eicrecon.git
 cd container-interfacing-nestdaq-eicrecon
-git switch almalinux9
 ./build-docker-image.sh
 ./run-docker-container.sh
 ```
