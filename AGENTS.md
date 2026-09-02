@@ -15,13 +15,18 @@ The repository itself is the authoritative source for the current package versio
 
 Do not recreate the environment only from this document. Preserve the current repository behavior unless a change is necessary.
 
-## Current AlmaLinux 9 branch status
+## AlmaLinux branch status
 
-The active compatibility branch is `almalinux9`. Keep its work separate from
-`main` until the Docker build, SIF build, and smoke test all pass.
+AlmaLinux 9 is the supported `main` branch baseline. The former AlmaLinux 10
+`main` history is preserved in the `almalinux10` branch for future work.
+The successful AlmaLinux 9 development history also remains available as the
+`almalinux9` branch.
 
-As of 2026-09-02, GitHub Actions has progressed through the dependency builds
-and into the NestDAQ controller build. AlmaLinux 9's Boost.System
+On 2026-09-02, GitHub Actions run #30 successfully completed the Docker build
+and push, Apptainer SIF build, SIF smoke test, and artifact upload for the
+AlmaLinux 9 image. The tested AlmaLinux 9 branch was then promoted to `main`.
+
+AlmaLinux 9's Boost.System
 `error_code` exposes `message()` rather than exception-style `what()`. The
 Dockerfile therefore patches the three current controller sources that call
 `ec.what()`:
@@ -32,10 +37,10 @@ controller/http_session.cxx
 controller/HttpWebSocketServer.cxx
 ```
 
-The preceding run also established that `nestdaq-user-impl` needs its internal
+The AlmaLinux 9 build also established that `nestdaq-user-impl` needs its internal
 `utility`, `emulator`, and `sqlite` CMake targets declared before executables
-that link to them. Preserve that target-ordering patch while continuing the
-AlmaLinux 9 build.
+that link to them. Preserve that target-ordering patch when maintaining the
+main image.
 
 `daq-webctl` is produced by the NestDAQ build, while `TimeFrameBuilder` and
 `STFBFilePlayer` are produced later by `nestdaq-user-impl`. Run each AVX
@@ -43,10 +48,10 @@ inspection only after the project that installs that executable; checking
 `TimeFrameBuilder` immediately after installing NestDAQ fails because the file
 does not exist yet.
 
-After each targeted fix, push to `almalinux9`, inspect the resulting `Build
-Docker and SIF` run, and record any new reproducible constraint here. Do not
-merge the branch into `main` merely because the Docker compilation succeeds;
-the SIF build and smoke test must also finish successfully.
+For future base-system changes, use a dedicated branch and inspect the complete
+`Build Docker and SIF` run. Do not promote a base-system branch to `main`
+merely because Docker compilation succeeds; the Docker push, SIF build, and
+SIF smoke test must all finish successfully.
 
 ## Purpose
 
