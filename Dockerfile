@@ -119,7 +119,8 @@ RUN cd ${SPADI_ROOT}/src && \
       nestdaq/cmake/common.cmake && \
     sed -i 's/ec\.what()/ec.message()/g' \
       nestdaq/controller/websocket_session.cxx \
-      nestdaq/controller/http_session.cxx && \
+      nestdaq/controller/http_session.cxx \
+      nestdaq/controller/HttpWebSocketServer.cxx && \
     cmake -S nestdaq -B nestdaq/build -DCMAKE_BUILD_TYPE=Release \
       -DCMAKE_INSTALL_PREFIX=${SPADI_ROOT} -DCMAKE_PREFIX_PATH=${SPADI_ROOT} \
       -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_CXX_STANDARD=17 && \
