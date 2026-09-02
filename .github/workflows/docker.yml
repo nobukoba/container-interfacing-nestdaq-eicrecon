@@ -6,7 +6,7 @@ on:
   push:
     branches:
       - main
-      - almalinux9
+      - almalinux10
     paths:
       - "Dockerfile"
       - "scripts/**"
