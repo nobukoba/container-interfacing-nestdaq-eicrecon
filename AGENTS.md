@@ -37,6 +37,12 @@ The preceding run also established that `nestdaq-user-impl` needs its internal
 that link to them. Preserve that target-ordering patch while continuing the
 AlmaLinux 9 build.
 
+`daq-webctl` is produced by the NestDAQ build, while `TimeFrameBuilder` and
+`STFBFilePlayer` are produced later by `nestdaq-user-impl`. Run each AVX
+inspection only after the project that installs that executable; checking
+`TimeFrameBuilder` immediately after installing NestDAQ fails because the file
+does not exist yet.
+
 After each targeted fix, push to `almalinux9`, inspect the resulting `Build
 Docker and SIF` run, and record any new reproducible constraint here. Do not
 merge the branch into `main` merely because the Docker compilation succeeds;
