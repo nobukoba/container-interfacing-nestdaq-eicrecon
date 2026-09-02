@@ -127,17 +127,12 @@ RUN cd ${SPADI_ROOT}/src && \
     cmake --build nestdaq/build -j${NPROC} --verbose && \
     cmake --install nestdaq/build && \
     echo '=== Checking NestDAQ executables for AVX instructions ===' && \
-    objdump -d ${SPADI_ROOT}/bin/TimeFrameBuilder > /tmp/TimeFrameBuilder.dis && \
-    if grep -Eq 'vzeroupper|ymm[0-9]+|zmm[0-9]+|vmovdqu' /tmp/TimeFrameBuilder.dis; then \
-      echo 'ERROR: AVX instructions found in TimeFrameBuilder' >&2; \
-      exit 1; \
-    fi && \
     objdump -d ${SPADI_ROOT}/bin/daq-webctl > /tmp/daq-webctl.dis && \
     if grep -Eq 'vzeroupper|ymm[0-9]+|zmm[0-9]+|vmovdqu' /tmp/daq-webctl.dis; then \
       echo 'ERROR: AVX instructions found in daq-webctl' >&2; \
       exit 1; \
     fi && \
-    rm -f /tmp/TimeFrameBuilder.dis /tmp/daq-webctl.dis
+    rm -f /tmp/daq-webctl.dis
 
 RUN cd ${SPADI_ROOT}/src && \
     git clone --depth 1 https://github.com/spadi-alliance/uhbook.git && \
@@ -181,12 +176,17 @@ RUN cmake -S ${SPADI_ROOT}/src/nestdaq-user-impl \
     cmake --build ${SPADI_ROOT}/src/nestdaq-user-impl/build -j${NPROC} --verbose && \
     cmake --install ${SPADI_ROOT}/src/nestdaq-user-impl/build && \
     echo '=== Checking nestdaq-user-impl executables for AVX instructions ===' && \
+    objdump -d ${SPADI_ROOT}/bin/TimeFrameBuilder > /tmp/TimeFrameBuilder.dis && \
+    if grep -Eq 'vzeroupper|ymm[0-9]+|zmm[0-9]+|vmovdqu' /tmp/TimeFrameBuilder.dis; then \
+      echo 'ERROR: AVX instructions found in TimeFrameBuilder' >&2; \
+      exit 1; \
+    fi && \
     objdump -d ${SPADI_ROOT}/bin/STFBFilePlayer > /tmp/STFBFilePlayer.dis && \
     if grep -Eq 'vzeroupper|ymm[0-9]+|zmm[0-9]+|vmovdqu' /tmp/STFBFilePlayer.dis; then \
       echo 'ERROR: AVX instructions found in STFBFilePlayer' >&2; \
       exit 1; \
     fi && \
-    rm -f /tmp/STFBFilePlayer.dis
+    rm -f /tmp/TimeFrameBuilder.dis /tmp/STFBFilePlayer.dis
 
 RUN git clone --depth 1 https://github.com/spadi-alliance/exp-config.git ${EXP_CONFIG_ROOT}
 
