@@ -15,6 +15,33 @@ The repository itself is the authoritative source for the current package versio
 
 Do not recreate the environment only from this document. Preserve the current repository behavior unless a change is necessary.
 
+## Current AlmaLinux 9 branch status
+
+The active compatibility branch is `almalinux9`. Keep its work separate from
+`main` until the Docker build, SIF build, and smoke test all pass.
+
+As of 2026-09-02, GitHub Actions has progressed through the dependency builds
+and into the NestDAQ controller build. AlmaLinux 9's Boost.System
+`error_code` exposes `message()` rather than exception-style `what()`. The
+Dockerfile therefore patches the three current controller sources that call
+`ec.what()`:
+
+```text
+controller/websocket_session.cxx
+controller/http_session.cxx
+controller/HttpWebSocketServer.cxx
+```
+
+The preceding run also established that `nestdaq-user-impl` needs its internal
+`utility`, `emulator`, and `sqlite` CMake targets declared before executables
+that link to them. Preserve that target-ordering patch while continuing the
+AlmaLinux 9 build.
+
+After each targeted fix, push to `almalinux9`, inspect the resulting `Build
+Docker and SIF` run, and record any new reproducible constraint here. Do not
+merge the branch into `main` merely because the Docker compilation succeeds;
+the SIF build and smoke test must also finish successfully.
+
 ## Purpose
 
 This repository provides the NestDAQ-side Docker / Apptainer environment for the NestDAQ–EICrecon interface.
