@@ -110,11 +110,16 @@ RUN cd ${SPADI_ROOT}/src && \
 # NestDAQ's common.cmake uses -march=native for Release builds.  On native
 # GitHub x86 runners this enables AVX, while Apple Silicon Docker's x86_64
 # emulation does not expose AVX.  Force an x86-64-v2 / non-AVX Release build.
+# AlmaLinux 9's Boost.System error_code provides message(), not exception-style
+# what(); patch the current NestDAQ controller sources without dropping daq-webctl.
 RUN cd ${SPADI_ROOT}/src && \
     git clone --depth 1 https://github.com/spadi-alliance/nestdaq.git && \
     sed -i \
       's/-Ofast -DNDEBUG -march=native/-Ofast -DNDEBUG -march=x86-64-v2 -mtune=generic -mno-avx -mno-avx2/' \
       nestdaq/cmake/common.cmake && \
+    sed -i 's/ec\.what()/ec.message()/g' \
+      nestdaq/controller/websocket_session.cxx \
+      nestdaq/controller/http_session.cxx && \
     cmake -S nestdaq -B nestdaq/build -DCMAKE_BUILD_TYPE=Release \
       -DCMAKE_INSTALL_PREFIX=${SPADI_ROOT} -DCMAKE_PREFIX_PATH=${SPADI_ROOT} \
       -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_CXX_STANDARD=17 && \
